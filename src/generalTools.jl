@@ -30,7 +30,7 @@ end
 
   Single draw from Dirichlet distribution, option for log scale.
 """
-function rDirichlet(α::Array{Float64}, logscale::Bool=false)
+function rDirichlet(α::Array{Float64,1}, logscale::Bool=false)
 
   k = length(α)
 
@@ -39,7 +39,7 @@ function rDirichlet(α::Array{Float64}, logscale::Bool=false)
 
   if logscale
     for i in 1:k
-      α[i] > 0 || throw(ArgumentError("α must be a positive vector."))
+      α[i] > 0.0 || throw(ArgumentError("α must be a positive vector."))
       xx[i] = log(rand(Gamma(α[i], 1.0)))
     end
     s = logsumexp(xx)
@@ -47,7 +47,7 @@ function rDirichlet(α::Array{Float64}, logscale::Bool=false)
 
   else
     for i in 1:k
-      α[i] > 0 || throw(ArgumentError("α must be a positive vector."))
+      α[i] > 0.0 || throw(ArgumentError("α must be a positive vector."))
       xx[i] = rand(Gamma(α[i], 1.0))
       s += xx[i]
     end
