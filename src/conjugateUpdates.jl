@@ -1,12 +1,11 @@
-"""
+#=
 conjugateUpdates.jl
 
 The function naming convention for this file is:
 post_likelihood_unknownParams
-"""
+=#
 
-
-export post_norm_mean;
+export post_norm_mean, post_norm_var;
 
 
 """

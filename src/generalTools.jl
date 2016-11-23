@@ -1,5 +1,5 @@
 
-export logsumexp, rDirichlet;
+export logsumexp, rDirichlet, condNorm;
 
 """
     logsumexp(x[, usemax])
