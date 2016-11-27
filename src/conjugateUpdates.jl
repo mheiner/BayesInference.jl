@@ -65,18 +65,21 @@ end
 
   Assumes independent normals prior with mean `0.0` and variance `τ2`.
 """
-function rpost_normlm_beta1(y::Union{Float64, Vector{Float64}},
-  X::Union{Float64, Vector{Float64}, Matrix{Float64}},
-  β0::Float64=0.0, σ2::Float64, τ2::Float64)
+function rpost_normlm_beta1(y::Vector{Float64},
+  X::Matrix{Float64},
+  σ2::Float64, τ2::Float64, β0::Float64=0.0)
+  # TO DO: write more methods
+  #   to handle n=1 and/or p=1 cases
 
   σ2 > 0.0 || throw(ArgumentError("σ2 must be positive."))
   τ2 > 0.0 || throw(ArgumentError("τ2 must be positive."))
 
-  const p = size(X)[2]
+  const n,p = size(X) # assumes X was a matrix
+  length(y) == n || throw(ArgumentError("y and X dimension mismatch"))
   const ystar = y - β0
 
   A = eye(p) / τ2 + X'X / σ2
-  U = chol(U)
+  U = chol(A)
 
   μ_a = At_ldiv_B(U, (X'ystar/σ2))
   μ = U \ μ_a
