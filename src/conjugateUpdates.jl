@@ -5,7 +5,7 @@ The function naming convention for this file is:
 post_likelihood_unknownParams
 =#
 
-export post_norm_mean, post_norm_var;
+export post_norm_mean, post_norm_var, rpost_normlm_beta1;
 
 
 """
@@ -52,4 +52,35 @@ function post_norm_var(ss::Float64, n::Int64, a0::Float64, b0::Float64)
   const b1 = b0 + 0.5*ss
 
   InverseGamma(a1, b1)
+end
+
+
+
+"""
+    rpost_normlm_beta1(y, X, β0, σ2, τ2)
+
+  Returns draw from conjugate normal posterior for linear model
+  coefficients under independent normal likelihood with
+  (optionally) known intercept `β0` and observation variance `σ2`.
+
+  Assumes independent normals prior with mean `0.0` and variance `τ2`.
+"""
+function rpost_normlm_beta1(y::Union{Float64, Vector{Float64}},
+  X::Union{Float64, Vector{Float64}, Matrix{Float64}},
+  β0::Float64=0.0, σ2::Float64, τ2::Float64)
+
+  σ2 > 0.0 || throw(ArgumentError("σ2 must be positive."))
+  τ2 > 0.0 || throw(ArgumentError("τ2 must be positive."))
+
+  const p = size(X)[2]
+  const ystar = y - β0
+
+  A = eye(p) / τ2 + X'X / σ2
+  U = chol(U)
+
+  μ_a = At_ldiv_B(U, (X'ystar/σ2))
+  μ = U \ μ_a
+
+  z = randn(p)
+  β = U \ z + μ
 end

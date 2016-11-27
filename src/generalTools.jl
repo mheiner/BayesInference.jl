@@ -92,8 +92,10 @@ function condNorm(μx::Union{Float64, Vector{Float64}},
   # Cholesky method (about 2 times faster than direct method)
   U = chol(Σxx)
 
-  C = U' \ Σxy
-  D = U' \ (x - μx)
+  # C = U' \ Σxy
+  C = At_ldiv_B(U, Σxy)
+  # D = U' \ (x - μx)
+  D = At_ldiv_B(U, (x - μx))
 
   μ = μy + C'D
   Σ = Σyy - C'C
@@ -113,3 +115,8 @@ function condNorm(μx::Union{Float64, Vector{Float64}},
 
   out = MultivariateNormal(μ, Σ)
 end
+
+
+## triangular matrix from vector
+# https://groups.google.com/forum/#!topic/julia-users/UARlZBCNlng
+# [ i<=j ? v[j*(j-1)>>>1+i] : 0 for i=1:n, j=1:n ]
