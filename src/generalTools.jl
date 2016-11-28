@@ -61,24 +61,24 @@ end
 """
     condNorm(μx, μy, Σxx, Σxy, Σyy, x)
 
-  Returns the conditional distribution of a the ``y`` subvector
+Returns the conditional distribution of a the ``y`` subvector
   of ``(x,y) ∼ MultivariateNormal``.
 
-  ### Example
-  ```julia
-    xx = randn(10, 5)
-    Sig = xx'xx
-    mu = collect(1:5)*1.0
-    x_indx = 1:3
-    y_indx = 4:5
-    μx = mu[x_indx]
-    μy = mu[y_indx]
-    Σxx = Sig[x_indx, x_indx]
-    Σyy = Sig[y_indx, y_indx]
-    Σxy = Sig[x_indx, y_indx]
-    x = [0.3, 2.1, 3.4]
-    @time condNorm(μx, μy, Σxx, Σxy, Σyy, x)
-  ```
+### Example
+```julia
+  xx = randn(10, 5)
+  Sig = xx'xx
+  mu = collect(1:5)*1.0
+  x_indx = 1:3
+  y_indx = 4:5
+  μx = mu[x_indx]
+  μy = mu[y_indx]
+  Σxx = Sig[x_indx, x_indx]
+  Σyy = Sig[y_indx, y_indx]
+  Σxy = Sig[x_indx, y_indx]
+  x = [0.3, 2.1, 3.4]
+  @time condNorm(μx, μy, Σxx, Σxy, Σyy, x)
+```
 """
 function condNorm(μx::Union{Float64, Vector{Float64}},
   μy::Union{Float64, Vector{Float64}},

@@ -57,7 +57,7 @@ end
 
 
 """
-    rpost_normlm_beta1(y, X, β0, σ2, τ2)
+    rpost_normlm_beta1(y, X, σ2, τ2, β0=0.0)
 
   Returns draw from conjugate normal posterior for linear model
   coefficients under independent normal likelihood with
