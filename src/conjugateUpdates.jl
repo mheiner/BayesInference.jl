@@ -68,8 +68,7 @@ end
 function rpost_normlm_beta1(y::Vector{Float64},
   X::Matrix{Float64},
   σ2::Float64, τ2::Float64, β0::Float64=0.0)
-  # TO DO: write more methods
-  #   to handle n=1 and/or p=1 cases
+  # n > 1 and p > 1 case
 
   σ2 > 0.0 || throw(ArgumentError("σ2 must be positive."))
   τ2 > 0.0 || throw(ArgumentError("τ2 must be positive."))
@@ -86,4 +85,55 @@ function rpost_normlm_beta1(y::Vector{Float64},
 
   z = randn(p)
   β = U \ z + μ
+end
+function rpost_normlm_beta1(y::Float64, X::Vector{Float64},
+  σ2::Float64, τ2::Float64, β0::Float64=0.0)
+  # n = 1 and p > 1 case
+
+  σ2 > 0.0 || throw(ArgumentError("σ2 must be positive."))
+  τ2 > 0.0 || throw(ArgumentError("τ2 must be positive."))
+
+  const p = length(X)
+  const ystar = y - β0
+
+  A = eye(p) / τ2 + A_mul_Bt(X, X) / σ2
+  U = chol(A)
+
+  μ_a = At_ldiv_B(U, (ystar*X/σ2))
+  μ = U \ μ_a
+
+  z = randn(p)
+  β = U \ z + μ
+end
+function rpost_normlm_beta1(y::Vector{Float64},
+  X::Vector{Float64},
+  σ2::Float64, τ2::Float64, β0::Float64=0.0)
+  # n > 1 and p = 1 case
+
+  σ2 > 0.0 || throw(ArgumentError("σ2 must be positive."))
+  τ2 > 0.0 || throw(ArgumentError("τ2 must be positive."))
+  length(y) == length(X) || throw(ArgumentError("y and X dimension mismatch"))
+
+  const ystar = y - β0
+
+  A = 1.0 / τ2 + X'X / σ2
+  μ = (X'ystar/σ2) / A
+
+  z = randn(1)
+  β = z / sqrt(A) + μ
+end
+function rpost_normlm_beta1(y::Float64, X::Float64,
+  σ2::Float64, τ2::Float64, β0::Float64=0.0)
+  # n = 1 and p = 1 case
+
+  σ2 > 0.0 || throw(ArgumentError("σ2 must be positive."))
+  τ2 > 0.0 || throw(ArgumentError("τ2 must be positive."))
+
+  const ystar = y - β0
+
+  A = 1.0 / τ2 + X'X / σ2
+  μ = (X'ystar/σ2) / A
+
+  z = randn(1)
+  β = z / sqrt(A) + μ
 end
