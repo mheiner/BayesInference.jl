@@ -116,7 +116,7 @@ function rpost_normlm_beta1(y::Vector{Float64},
 
   const ystar = y - β0
 
-  A = 1.0 / τ2 + X'X / σ2
+  A = 1.0 / τ2 + dot(X,X) / σ2
   μ = (X'ystar/σ2) / A
 
   z = randn(1)
@@ -131,7 +131,7 @@ function rpost_normlm_beta1(y::Float64, X::Float64,
 
   const ystar = y - β0
 
-  A = 1.0 / τ2 + X'X / σ2
+  A = 1.0 / τ2 + dot(X,X) / σ2
   μ = (X'ystar/σ2) / A
 
   z = randn(1)
