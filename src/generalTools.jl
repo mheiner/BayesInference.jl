@@ -1,5 +1,5 @@
 
-export logsumexp, rDirichlet, condNorm;
+export logsumexp, rDirichlet, condNorm, ldnorm;
 
 """
     logsumexp(x[, usemax])
@@ -120,3 +120,10 @@ end
 ## triangular matrix from vector
 # https://groups.google.com/forum/#!topic/julia-users/UARlZBCNlng
 # [ i<=j ? v[j*(j-1)>>>1+i] : 0 for i=1:n, j=1:n ]
+
+"""
+    ldnorm(x, μ, σ2)
+"""
+function ldnorm(x::Float64, μ::Float64, σ2::Float64)
+  -0.5*log(2*π*σ2) - 0.5 * (x - μ)^2 / σ2
+end
