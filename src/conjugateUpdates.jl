@@ -47,7 +47,7 @@ function post_norm_var(ss::Float64, n::Int64, a0::Float64, b0::Float64)
   a0 > 0.0 || throw(ArgumentError("a0 must be positive."))
   b0 > 0.0 || throw(ArgumentError("b0 must be positive."))
 
-  const n = convert(Float64, n)
+  # const n = convert(Float64, n)
   const a1 = a0 + 0.5*n
   const b1 = b0 + 0.5*ss
 
