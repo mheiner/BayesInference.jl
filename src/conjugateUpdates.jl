@@ -21,7 +21,7 @@ function post_norm_mean(ȳ::Float64, n::Int, σ2::Float64, μ0::Float64, v0::Fl
   v0 > 0.0 || throw(ArgumentError("v0 must be positive."))
   n > 0.0 || throw(ArgumentError("n must be positive."))
 
-  const n = convert(Float64, n)
+  # const n = convert(Float64, n)
 
   const v1 = 1.0 / (1.0/v0 + n/σ2)
   const sd1 = sqrt(v1)
