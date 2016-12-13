@@ -4,9 +4,9 @@ export adapt_cΣ;
 
 
 """
-    adapt_cΣ(accpt_rate, cΣ, trys, accpt_bnds=[0.23, 0.40], adjust=[0.5, 2.0]
+    adapt_cΣ(accpt_rate, cΣ, tries, accpt_bnds=[0.23, 0.40], adjust=[0.5, 2.0]
 """
-function adapt_cΣ(accpt_rate::Float64, cΣ::Matrix{Float64}, trys::UInt64,
+function adapt_cΣ(accpt_rate::Float64, cΣ::Matrix{Float64}, tries::UInt64,
   accpt_bnds::Vector{Float64}=[0.23, 0.40], adjust::Vector{Float64}=[0.5, 2.0])
 
   pass = true
@@ -23,7 +23,5 @@ function adapt_cΣ(accpt_rate::Float64, cΣ::Matrix{Float64}, trys::UInt64,
     cΣ_out = adjust[2] .* cΣ
   end
 
-  cΣ_U_out = chol(cΣ_out)
-
-  return (pass, trys+1, cΣ_out, cΣ_U_out)
+  return (pass, tries+1, cΣ_out)
 end
