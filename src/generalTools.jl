@@ -23,6 +23,32 @@ function logsumexp(x::Array{Float64}, usemax::Bool=true)
   m + log(sum(exp(x - m)))
 end
 
+"""
+    logsumexp(x, region[, usemax])
+
+Computes `log(sum(exp(x)))` in a stable manner along dimensions specified.
+
+### Example
+```julia
+  x = reshape(collect(1:24), (2,3,4))
+  logsumexp(x, 2)
+```
+"""
+function logsumexp(x::Array{Float64}, region, usemax::Bool=true)
+  if usemax
+    ms = maximum(x, region)
+  else
+    ms = minimum(x, region)
+  end
+  bc_xminusms = broadcast(-, x, ms)
+
+  expxx = exp(bc_xminusms)
+  sumexpxx = sum(expxx, region)
+
+  log(sumexpxx) + ms
+end
+
+
 
 
 """
