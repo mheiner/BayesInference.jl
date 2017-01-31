@@ -94,7 +94,7 @@ function rSparseDirMix(α::Vector{Float64}, β::Float64, logscale=false)
   K = length(α)
   X = reshape(repeat(α, inner=K), (K,K)) + β .* eye(K)
   lgX = lgamma(X)
-  lpg = sum(lgX, 2)
+  lpg = reshape(sum(lgX, 2), K)
   lpg_denom = logsumexp(lpg)
 
   lw = lpg - lpg_denom
