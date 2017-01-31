@@ -1,5 +1,5 @@
 
-export logsumexp, rDirichlet, condNorm, ldnorm;
+export logsumexp, rDirichlet, rSparseDirMix, condNorm, ldnorm;
 
 """
     logsumexp(x[, usemax])
@@ -80,6 +80,27 @@ function rDirichlet(α::Array{Float64,1}, logscale::Bool=false)
   end
 
 out
+end
+
+
+"""
+    rSparseDirMix(α, β[, logscale=FALSE])
+
+  Draw from sparse Dirichlet mixture: p(Θ) ∝ Dir(α)⋅∑Θ^β
+
+"""
+function rSparseDirMix(α::Vector{Float64}, β::Float64, logscale=false)
+  assert(β > 1.0)
+  K = length(α)
+  X = reshape(repeat(α, inner=K), (K,K)) + β .* eye(K)
+  lgX = lgamma(X)
+  lpg = sum(lgX, 2)
+  lpg_denom = logsumexp(lpg)
+
+  lw = lpg - lpg_denom
+  z = StatsBase.sample(WeightVec( exp(lw) ))
+
+  rDirichlet(X[z,:], logscale)
 end
 
 
