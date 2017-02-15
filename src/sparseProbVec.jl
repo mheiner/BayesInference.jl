@@ -1,6 +1,32 @@
 # sparseProbVec.jl
 
-export rSparseDirMix, rpost_SparseStickBreak, slice_mu;
+export SparseDirMixPrior, SparseSBPrior, SparseSBPriorFull,
+  rSparseDirMix, rpost_sparseStickBreak, slice_mu;
+
+
+immutable SparseDirMixPrior
+  α::Union{Float64, Vector{Float64}}
+  β::Float64
+end
+
+immutable SparseSBPrior
+  α::Float64
+  p1::Float64
+  μ::Float64
+  M::Float64
+end
+
+type SparseSBPriorFull
+  α::Float64
+  M::Float64
+  a_p1::Float64
+  b_p1::Float64
+  a_μ::Float64
+  b_μ::Float64
+  p1_now::Float64
+  μ_now::Float64
+end
+
 
 ### Sparse Dirichlet Mixture
 
@@ -30,9 +56,11 @@ end
 ### Sparse Stick Breaking mixture
 
 
-function h_slice_mu(z2::Vector{Float64}, n2::Int, M::Float64, μ::Float64, logscale::Bool=false)
+function h_slice_mu(z2::Vector{Float64}, n2::Int, M::Float64, μ::Float64,
+  logscale::Bool=false)
+
   a = -n2*(lgamma(M*μ) + lgamma(M*(1.0 - μ)))
-  b = M*μ*sum( log(z2) .- log(1.0 .- z2)))
+  b = M*μ*sum( log(z2) .- log(1.0 .- z2))
   out = a + b
   if (!logscale)
     out = exp(out)
@@ -58,8 +86,11 @@ function slice_mu(z::Vector{Float64}, ξ::Vector{Int}, μ_old::Float64, M::Float
 
     ii = 0
     keepgoing = true
+    μ_cand = 0.0
     while keepgoing
-      if ii > 1000 throw("too many slices!")
+      if ii > 1000
+        throw("too many slices!")
+      end
 
       μ_cand = rand( betadist )
       lh = h_slice_mu(z2, n2, M, μ_cand, true)
@@ -68,7 +99,7 @@ function slice_mu(z::Vector{Float64}, ξ::Vector{Int}, μ_old::Float64, M::Float
       ii += 1
     end
 
-    μ_out = copy(mu_cand)
+    μ_out = copy(μ_cand)
   end
 
   μ_out
@@ -76,7 +107,8 @@ end
 
 
 
-function rpost_SparseStickBreak(x::Vector{Int}, p1::Float64, α::Float64, μ::Float64, M::Float64)
+function rpost_sparseStickBreak(x::Vector{Int}, p1::Float64, α::Float64,
+  μ::Float64, M::Float64)
 
   const K = length(x)
   const n = K - 1
@@ -107,6 +139,7 @@ function rpost_SparseStickBreak(x::Vector{Int}, p1::Float64, α::Float64, μ::Fl
       z[i] = rand( Beta(a1[i], b1[i]) )
     else
       z[i] = rand( Beta(a2[i], b2[i]) )
+    end
   end
 
   ## break the Stick
@@ -121,12 +154,13 @@ function rpost_SparseStickBreak(x::Vector{Int}, p1::Float64, α::Float64, μ::Fl
 
   (w, z, ξ)
 end
-function rpost_SparseStickBreak(x::Vector{Int}, p1_old::Float64, α::Float64,
+
+function rpost_sparseStickBreak(x::Vector{Int}, p1_old::Float64, α::Float64,
   μ_old::Float64, M::Float64, a_p1::Float64, b_p1::Float64, a_μ::Float64, b_μ::Float64)
 
   ## inference for p1 and μ as well
 
-  w, z, ξ = rpost_SparseStickBreak(x, p1_old, α, μ_old, M)
+  w, z, ξ = rpost_sparseStickBreak(x, p1_old, α, μ_old, M)
   μ_now = slice_mu(z, ξ, μ_old, M, a_μ, b_μ)
   p1_now = rand( Beta(a_p1 + sum(ξ==1), b_p1 + sum(ξ==2) ) )
 
