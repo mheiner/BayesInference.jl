@@ -1,6 +1,6 @@
 # sparseProbVec.jl
 
-export SparseDirMixPrior, SparseSBPrior, SparseSBPriorFull,
+export SparseDirMixPrior, SparseSBPrior, SparseSBPriorP, SparseSBPriorFull,
   rSparseDirMix, rpost_sparseStickBreak, slice_mu;
 
 
@@ -14,6 +14,15 @@ immutable SparseSBPrior
   p1::Float64
   μ::Float64
   M::Float64
+end
+
+type SparseSBPriorP
+  α::Float64
+  μ::Float64
+  M::Float64
+  a_p1::Float64
+  b_p1::Float64
+  p1_now::Float64
 end
 
 type SparseSBPriorFull
@@ -154,7 +163,16 @@ function rpost_sparseStickBreak(x::Vector{Int}, p1::Float64, α::Float64,
 
   (w, z, ξ)
 end
+function rpost_sparseStickBreak(x::Vector{Int}, p1_old::Float64, α::Float64,
+  μ::Float64, M::Float64, a_p1::Float64, b_p1::Float64)
 
+  ## inference for p1 only
+
+  w, z, ξ = rpost_sparseStickBreak(x, p1_old, α, μ, M)
+  p1_now = rand( Beta(a_p1 + sum(ξ==1), b_p1 + sum(ξ==2) ) )
+
+  (w, z, ξ, p1_now)
+end
 function rpost_sparseStickBreak(x::Vector{Int}, p1_old::Float64, α::Float64,
   μ_old::Float64, M::Float64, a_p1::Float64, b_p1::Float64, a_μ::Float64, b_μ::Float64)
 
