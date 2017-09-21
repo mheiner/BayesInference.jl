@@ -1,5 +1,5 @@
 
-export logsumexp, rDirichlet, condNorm, ldnorm;
+export logsumexp, rDirichlet, condNorm, ldnorm, lmvbeta;
 
 """
     logsumexp(x[, usemax])
@@ -153,4 +153,20 @@ end
 """
 function ldnorm(x::Float64, μ::Float64, σ2::Float64)
   -0.5*log(2*π*σ2) - 0.5 * (x - μ)^2 / σ2
+end
+
+
+"""
+    lmvbeta(x)
+
+Computes the natural log of ``prod(\Gamma(x)) / \Gamma(sum(x))``.
+
+### Example
+```julia
+  x = rand(5)
+  lmvbeta(x)
+```
+"""
+function lmvbeta(x::Array{Float64})
+    sum(lgamma(x)) - lgamma(sum(x))
 end
