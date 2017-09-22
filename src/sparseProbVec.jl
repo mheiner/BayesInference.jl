@@ -1,7 +1,7 @@
 # sparseProbVec.jl
 
 export SparseDirMixPrior, SparseSBPrior, SparseSBPriorP, SparseSBPriorFull,
-  rSparseDirMix, rpost_sparseStickBreak, slice_mu;
+  logSDMweights, logSDMmarginal, rSparseDirMix, rpost_sparseStickBreak, slice_mu;
 
 
 immutable SparseDirMixPrior
@@ -38,6 +38,46 @@ end
 
 
 ### Sparse Dirichlet Mixture
+
+"""
+    logSDMweights(α, β)
+
+  Calculate the log of mixture weights for the SDM prior.
+
+"""
+function logSDMweights(α::Vector{Float64}, β::Float64)
+  assert(β > 1.0)
+  K = length(α)
+  X = reshape(repeat(α, inner=K), (K,K)) + β .* eye(K)
+  lgX = lgamma(X)
+  lpg = reshape(sum(lgX, 2), K)
+  lpg_denom = logsumexp(lpg)
+
+  lw = lpg - lpg_denom
+  lw
+end
+
+"""
+    logSDMmarginal(x, α, β)
+
+  Calculate the log of the SDM prior predictive probability mass function.
+
+"""
+function logSDMmarginal(x::Vector{Int}, α::Vector{Float64}, β::Float64)
+    lwSDM = logSDMweights(α, β)
+
+    K = length(α)
+    A = reshape(repeat(α, inner=K), (K,K)) + β .* eye(K)
+    AX = A + reshape(repeat(x, inner=K), (K,K))
+
+    lnum = [ lmvbeta(AX[k,:]) for k in 1:K ]
+    ldenom = [ lmvbeta(A[k,:]) for k in 1:K ]
+
+    lv = lwSDM .+ lnum .- ldenom
+
+    logsumexp( lv )
+end
+
 
 """
     rSparseDirMix(α, β[, logscale=FALSE])
