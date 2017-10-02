@@ -1,7 +1,8 @@
 # sparseProbVec.jl
 
 export SparseDirMixPrior, SparseSBPrior, SparseSBPriorP, SparseSBPriorFull,
-  logSDMweights, logSDMmarginal, rSparseDirMix, rpost_sparseStickBreak, slice_mu;
+  logSDMweights, logSDMmarginal, rSparseDirMix,
+  rpost_sparseStickBreak, slice_mu, logSBMmarginal;
 
 
 immutable SparseDirMixPrior
@@ -223,4 +224,37 @@ function rpost_sparseStickBreak(x::Vector{Int}, p1_old::Float64, α::Float64,
   p1_now = rand( Beta(a_p1 + sum(ξ==1), b_p1 + sum(ξ==2) ) )
 
   (w, z, ξ, μ_now, p1_now)
+end
+
+
+
+"""
+    logSBMmarginal(x, p1, α, μ, M)
+
+  Calculate the log of the SBM prior predictive probability mass function.
+
+"""
+function logSBMmarginal(x::Vector{Int}, p1::Float64, α::Float64,
+  μ::Float64, M::Float64)
+
+      const K = length(x)
+      const n = K - 1
+      const rcrx = cumsum( x[range(K, -1, n)] )[range(n, -1, n)]  # ∑_{k+1}^K x_k
+      const γ = M * μ
+      const δ = M * (1.0 - μ)
+
+      ## mixture component 1 update
+      const a1 = 1.0 .+ x[1:n]
+      const b1 = α .+ rcrx
+
+      ## mixture component 2 update
+      const a2 = γ .+ x[1:n]
+      const b2 = δ .+ rcrx
+
+      ## calculate posterior mixture weights
+      const lgwt1 = log(p1) .- lbeta(1.0, α) .+ lbeta(a1, b1)
+      const lgwt2 = log(1.0 - p1) .- lbeta(γ, δ) .+ lbeta(a2, b2)
+      const lsum = [ logsumexp( [lgwt1[i], lgwt2[i]] ) for i in 1:n ]
+
+      sum( lsum )
 end
