@@ -95,7 +95,7 @@ function rSparseDirMix(α::Vector{Float64}, β::Float64, logscale=false)
   lpg_denom = logsumexp(lpg)
 
   lw = lpg - lpg_denom
-  z = StatsBase.sample(WeightVec( exp(lw) ))
+  z = StatsBase.sample(WeightVec( exp.(lw) ))
 
   rDirichlet(X[z,:], logscale)
 end
