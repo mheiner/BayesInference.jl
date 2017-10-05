@@ -20,7 +20,7 @@ function logsumexp(x::Array{Float64}, usemax::Bool=true)
     m = minimum(x)
   end
 
-  m + log(sum(exp(x - m)))
+  m + log(sum(exp.(x - m)))
 end
 
 """

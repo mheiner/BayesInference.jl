@@ -90,7 +90,7 @@ function rSparseDirMix(α::Vector{Float64}, β::Float64, logscale=false)
   assert(β > 1.0)
   K = length(α)
   X = reshape(repeat(α, inner=K), (K,K)) + β .* eye(K)
-  lgX = lgamma(X)
+  lgX = lgamma.(X)
   lpg = reshape(sum(lgX, 2), K)
   lpg_denom = logsumexp(lpg)
 
@@ -175,11 +175,11 @@ function rpost_sparseStickBreak(x::Vector{Int}, p1::Float64, α::Float64,
   const b2 = δ .+ rcrx
 
   ## calculate posterior mixture weights
-  const lgwt1 = log(p1) .- lbeta(1.0, α) .+ lbeta(a1, b1)
-  const lgwt2 = log(1.0 - p1) .- lbeta(γ, δ) .+ lbeta(a2, b2)
+  const lgwt1 = log(p1) .- lbeta.(1.0, α) .+ lbeta.(a1, b1)
+  const lgwt2 = log(1.0 - p1) .- lbeta.(γ, δ) .+ lbeta.(a2, b2)
   const ldenom = [ logsumexp( [lgwt1[i], lgwt2[i]] ) for i in 1:n ]
 
-  const post_p1 = exp( lgwt1 .- ldenom )
+  const post_p1 = exp.( lgwt1 .- ldenom )
   const is1 = rand(n) .< post_p1
   const ξ = -1*(is1 .* 1 - 1) + 1
 
@@ -252,8 +252,8 @@ function logSBMmarginal(x::Vector{Int}, p1::Float64, α::Float64,
       const b2 = δ .+ rcrx
 
       ## calculate posterior mixture weights
-      const lgwt1 = log(p1) .- lbeta(1.0, α) .+ lbeta(a1, b1)
-      const lgwt2 = log(1.0 - p1) .- lbeta(γ, δ) .+ lbeta(a2, b2)
+      const lgwt1 = log(p1) .- lbeta.(1.0, α) .+ lbeta.(a1, b1)
+      const lgwt2 = log(1.0 - p1) .- lbeta.(γ, δ) .+ lbeta.(a2, b2)
       const lsum = [ logsumexp( [lgwt1[i], lgwt2[i]] ) for i in 1:n ]
 
       sum( lsum )
