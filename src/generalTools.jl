@@ -168,5 +168,5 @@ Computes the natural log of ``prod(\Gamma(x)) / \Gamma(sum(x))``.
 ```
 """
 function lmvbeta(x::Array{Float64})
-    sum(lgamma(x)) - lgamma(sum(x))
+    sum(lgamma.(x)) - lgamma(sum(x))
 end
