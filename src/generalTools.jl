@@ -1,5 +1,5 @@
 
-export logsumexp, rDirichlet, condNorm, ldnorm, lmvbeta;
+export logsumexp, rDirichlet, embed, condNorm, ldnorm, lmvbeta;
 
 """
     logsumexp(x[, usemax])
@@ -82,8 +82,25 @@ function rDirichlet(α::Array{Float64,1}, logscale::Bool=false)
 out
 end
 
+"""
+    embed(y::Union{Vector{Int}, Vector{Float64}}, nlags::Int)
 
-
+### Example
+```julia
+embed(collect(1:5), 2)
+```
+"""
+function embed(y::Union{Vector{Int}, Vector{Float64}}, nlags::Int)
+    TT = length(y)
+    n = TT - nlags
+    emdim = nlags + 1
+    out = zeros(Float64, n, emdim)
+    for i in 1:n
+        tt = i + nlags
+        out[i,:] = copy(y[range(tt, -1, emdim)])
+    end
+    out
+end
 
 """
     condNorm(μx, μy, Σxx, Σxy, Σyy, x)
