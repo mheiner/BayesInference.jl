@@ -158,7 +158,7 @@ end
 
 
 function rpost_sparseStickBreak(x::Vector{Int}, p1::Float64, α::Float64,
-  μ::Float64, M::Float64)
+  μ::Float64, M::Float64, logout::Bool=false)
 
   const K = length(x)
   const n = K - 1
@@ -183,47 +183,69 @@ function rpost_sparseStickBreak(x::Vector{Int}, p1::Float64, α::Float64,
   const is1 = rand(n) .< post_p1
   const ξ = -1*(is1 .* 1 - 1) + 1
 
-  z = Vector{Float64}(n)
+  lz = Vector{Float64}(n)
   for i in 1:n
     if is1[i]
-      z[i] = rand( Beta(a1[i], b1[i]) )
+      lx1 = log( rand( Distributions.Gamma( a1[i] ) ) )
+      lx2 = log( rand( Distributions.Gamma( b1[i] ) ) )
+      lxm = max(lx1, lx2)
+      lxsum = lxm + log( exp(lx1 - lxm) + exp(lx2 - lxm) ) # logsumexp
+      lz[i] = lx1 - lxsum
+      # z[i] = rand( Beta(a1[i], b1[i]) )
     else
-      z[i] = rand( Beta(a2[i], b2[i]) )
+      lx1 = log( rand( Distributions.Gamma( a2[i] ) ) )
+      lx2 = log( rand( Distributions.Gamma( b2[i] ) ) )
+      lxm = max(lx1, lx2)
+      lxsum = lxm + log( exp(lx1 - lxm) + exp(lx2 - lxm) ) # logsumexp
+      lz[i] = lx1 - lxsum
+      # z[i] = rand( Beta(a2[i], b2[i]) )
     end
   end
 
   ## break the Stick
-  w = Vector{Float64}(K)
-  whatsleft = 1.0
+  lw = Vector{Float64}(K)
+  lwhatsleft = 0.0
 
   for i in 1:n
-    w[i] = z[i] * whatsleft
-    whatsleft -= copy(w[i])
+    lw[i] = lz[i] + lwhatsleft
+    lwhatsleft += log( 1.0 - exp(lw[i] - lwhatsleft) ) # logsumexp
   end
-  w[K] = copy(whatsleft)
+  lw[K] = copy(lwhatsleft)
 
-  (w, z, ξ)
+  z = exp.(lz)
+  w = exp.(lw)
+
+  if logout
+      (lw, lz, ξ)
+    else
+      (w, z, ξ)
+  end
 end
 function rpost_sparseStickBreak(x::Vector{Int}, p1_old::Float64, α::Float64,
-  μ::Float64, M::Float64, a_p1::Float64, b_p1::Float64)
+  μ::Float64, M::Float64, a_p1::Float64, b_p1::Float64, logout::Bool=false)
 
   ## inference for p1 only
 
-  w, z, ξ = rpost_sparseStickBreak(x, p1_old, α, μ, M)
+  w, z, ξ = rpost_sparseStickBreak(x, p1_old, α, μ, M, logout)
   p1_now = rand( Beta(a_p1 + sum(ξ==1), b_p1 + sum(ξ==2) ) )
 
-  (w, z, ξ, p1_now)
+  (w, z, ξ, p1_now) # w and z may be log-valued depending on logout
 end
 function rpost_sparseStickBreak(x::Vector{Int}, p1_old::Float64, α::Float64,
-  μ_old::Float64, M::Float64, a_p1::Float64, b_p1::Float64, a_μ::Float64, b_μ::Float64)
+  μ_old::Float64, M::Float64, a_p1::Float64, b_p1::Float64, a_μ::Float64, b_μ::Float64, logout::Bool=false)
 
   ## inference for p1 and μ as well
 
-  w, z, ξ = rpost_sparseStickBreak(x, p1_old, α, μ_old, M)
-  μ_now = slice_mu(z, ξ, μ_old, M, a_μ, b_μ)
+  w, z, ξ = rpost_sparseStickBreak(x, p1_old, α, μ_old, M, logout)
+  if logout
+      μ_now = slice_mu(exp.(z), ξ, μ_old, M, a_μ, b_μ)
+  else
+      μ_now = slice_mu(z, ξ, μ_old, M, a_μ, b_μ)
+  end
+
   p1_now = rand( Beta(a_p1 + sum(ξ==1), b_p1 + sum(ξ==2) ) )
 
-  (w, z, ξ, μ_now, p1_now)
+  (w, z, ξ, μ_now, p1_now) # w and z may be log-valued depending on logout
 end
 
 
