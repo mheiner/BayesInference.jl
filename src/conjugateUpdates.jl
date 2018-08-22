@@ -78,9 +78,11 @@ function rpost_normlm_beta1(y::Vector{Float64},
   ystar = y - β0
 
   A = eye(p) / τ2 + X'X / σ2
-  U = chol(A)
+  U = (cholesky(A)).U
+  Ut = transpose(U)
 
-  μ_a = At_ldiv_B(U, (X'ystar/σ2))
+  # μ_a = At_ldiv_B(U, (X'ystar/σ2))
+  μ_a = Ut \ (X'ystar/σ2)
   μ = U \ μ_a
 
   z = randn(p)
@@ -97,9 +99,11 @@ function rpost_normlm_beta1(y::Float64, X::Vector{Float64},
   ystar = y - β0
 
   A = eye(p) / τ2 + A_mul_Bt(X, X) / σ2
-  U = chol(A)
+  U = (cholesky(A)).U
+  Ut = transpose(U)
 
-  μ_a = At_ldiv_B(U, (ystar*X/σ2))
+  # μ_a = At_ldiv_B(U, (ystar*X/σ2))
+  μ_a = Ut \ (ystar*X/σ2)
   μ = U \ μ_a
 
   z = randn(p)

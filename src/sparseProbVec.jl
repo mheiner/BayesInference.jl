@@ -2,7 +2,7 @@
 
 export SparseDirMixPrior, SparseSBPrior, SparseSBPriorP, SparseSBPriorFull,
   logSDMweights, logSDMmarginal, rSparseDirMix,
-  rpost_sparseStickBreak, slice_mu, logSBMmarginal;
+  rpost_sparseStickBreak, logSBMmarginal;
 
 
 struct SparseDirMixPrior
@@ -44,17 +44,22 @@ end
     logSDMweights(α, β)
 
   Calculate the log of mixture weights for the SDM prior.
-
+### Example
+```julia
+    α = exp.(rand(5))
+    β = 2.0
+    logSDMweights(α, β)
+```
 """
 function logSDMweights(α::Vector{Float64}, β::Float64)
-  assert(β > 1.0)
+  @assert(β > 1.0)
   K = length(α)
-  X = reshape(repeat(α, inner=K), (K,K)) + β .* eye(K)
+  X = reshape(repeat(α, inner=K), (K,K)) + β .* Matrix{Float64}(I, K, K)
   lgX = lgamma.(X)
-  lpg = reshape(sum(lgX, 2), K)
+  lpg = reshape(sum(lgX, dims=2), K)
   lpg_denom = logsumexp(lpg)
 
-  lw = lpg - lpg_denom
+  lw = lpg .- lpg_denom
   lw
 end
 
@@ -68,7 +73,7 @@ function logSDMmarginal(x::Vector{Int}, α::Vector{Float64}, β::Float64)
     lwSDM = logSDMweights(α, β)
 
     K = length(α)
-    A = reshape(repeat(α, inner=K), (K,K)) + β .* eye(K)
+    A = reshape(repeat(α, inner=K), (K,K)) + β .* Matrix{Float64}(I, K, K)
     AX = A + reshape(repeat(x, inner=K), (K,K))
 
     lnum = [ lmvbeta(AX[k,:]) for k in 1:K ]
@@ -89,12 +94,12 @@ end
 function rSparseDirMix(α::Vector{Float64}, β::Float64, logscale=false)
   assert(β > 1.0)
   K = length(α)
-  X = reshape(repeat(α, inner=K), (K,K)) + β .* eye(K)
+  X = reshape(repeat(α, inner=K), (K,K)) + β .* Matrix{Float64}(I, K, K)
   lgX = lgamma.(X)
-  lpg = reshape(sum(lgX, 2), K)
+  lpg = reshape(sum(lgX, dims=2), K)
   lpg_denom = logsumexp(lpg)
 
-  lw = lpg - lpg_denom
+  lw = lpg .- lpg_denom
   z = StatsBase.sample(Weights( exp.(lw) ))
 
   rDirichlet(X[z,:], logscale)
@@ -104,56 +109,54 @@ end
 
 
 ### Sparse Stick Breaking mixture
+# function h_slice_mu(z2::Vector{Float64}, n2::Int, M::Float64, μ::Float64,
+#   logscale::Bool=false)
+#
+#   a = -n2*(lgamma(M*μ) + lgamma(M*(1.0 - μ)))
+#   b = M*μ*sum( log(z2) .- log(1.0 .- z2))
+#   out = a + b
+#   if (!logscale)
+#     out = exp(out)
+#   end
+#   out
+# end
 
 
-function h_slice_mu(z2::Vector{Float64}, n2::Int, M::Float64, μ::Float64,
-  logscale::Bool=false)
-
-  a = -n2*(lgamma(M*μ) + lgamma(M*(1.0 - μ)))
-  b = M*μ*sum( log(z2) .- log(1.0 .- z2))
-  out = a + b
-  if (!logscale)
-    out = exp(out)
-  end
-  out
-end
-
-
-function slice_mu(z::Vector{Float64}, ξ::Vector{Int}, μ_old::Float64, M::Float64,
-  a_μ::Float64, b_μ::Float64)
-
-  # assumes xi=1 for group 1, xi=2 for group 2
-
-  n2 = sum( ξ.==2 )
-  betadist = Beta(a_μ, b_μ)
-  if n2 == 0
-    μ_out = rand( betadist )
-  else
-    z2 = copy( z[ find(ξ.==2) ] )
-    b_u = h_slice_mu(z2, n2, M, μ_old)
-    u = rand( Uniform(0.0, b_u) )
-    lu = log(u)
-
-    ii = 0
-    keepgoing = true
-    μ_cand = 0.0
-    while keepgoing
-      if ii > 1000
-        throw("too many slices!")
-      end
-
-      μ_cand = rand( betadist )
-      lh = h_slice_mu(z2, n2, M, μ_cand, true)
-
-      keepgoing = lu > lh
-      ii += 1
-    end
-
-    μ_out = copy(μ_cand)
-  end
-
-  μ_out
-end
+# function slice_mu(z::Vector{Float64}, ξ::Vector{Int}, μ_old::Float64, M::Float64,
+#   a_μ::Float64, b_μ::Float64)
+#
+#   # assumes xi=1 for group 1, xi=2 for group 2
+#
+#   n2 = sum( ξ.==2 )
+#   betadist = Beta(a_μ, b_μ)
+#   if n2 == 0
+#     μ_out = rand( betadist )
+#   else
+#     z2 = copy( z[ find(ξ.==2) ] )
+#     b_u = h_slice_mu(z2, n2, M, μ_old)
+#     u = rand( Uniform(0.0, b_u) )
+#     lu = log(u)
+#
+#     ii = 0
+#     keepgoing = true
+#     μ_cand = 0.0
+#     while keepgoing
+#       if ii > 1000
+#         throw("too many slices!")
+#       end
+#
+#       μ_cand = rand( betadist )
+#       lh = h_slice_mu(z2, n2, M, μ_cand, true)
+#
+#       keepgoing = lu > lh
+#       ii += 1
+#     end
+#
+#     μ_out = copy(μ_cand)
+#   end
+#
+#   μ_out
+# end
 
 
 
@@ -162,7 +165,7 @@ function rpost_sparseStickBreak(x::Vector{Int}, p1::Float64, α::Float64,
 
   K = length(x)
   n = K - 1
-  rcrx = cumsum( x[range(K, -1, n)] )[range(n, -1, n)]  # ∑_{k+1}^K x_k
+  rcrx = cumsum( x[range(K, step=-1, length=n)] )[range(n, step=-1, length=n)]  # ∑_{k+1}^K x_k
   γ = M * μ
   δ = M * (1.0 - μ)
 
@@ -261,7 +264,7 @@ function logSBMmarginal(x::Vector{Int}, p1::Float64, α::Float64,
 
       K = length(x)
       n = K - 1
-      rcrx = cumsum( x[range(K, -1, n)] )[range(n, -1, n)]  # ∑_{k+1}^K x_k
+      rcrx = cumsum( x[range(K, step=-1, length=n)] )[range(n, step=-1, length=n)]  # ∑_{k+1}^K x_k
       γ = M * μ
       δ = M * (1.0 - μ)
 

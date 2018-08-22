@@ -10,7 +10,7 @@ Computes `log(sum(exp(x)))` in a stable manner.
 ```julia
   x = rand(5)
   logsumexp(x)
-  log(sum(exp(x)))
+  log(sum(exp.(x)))
 ```
 """
 function logsumexp(x::Array{Float64}, usemax::Bool=true)
@@ -20,7 +20,7 @@ function logsumexp(x::Array{Float64}, usemax::Bool=true)
     m = minimum(x)
   end
 
-  m + log(sum(exp.(x - m)))
+  m + log(sum(exp.(x .- m)))
 end
 
 """
@@ -30,7 +30,7 @@ Computes `log(sum(exp(x)))` in a stable manner along dimensions specified.
 
 ### Example
 ```julia
-  x = reshape(collect(1:24), (2,3,4))
+  x = reshape(collect(1:24)*1.0, (2,3,4))
   logsumexp(x, 2)
 ```
 """
@@ -42,10 +42,10 @@ function logsumexp(x::Array{Float64}, region, usemax::Bool=true)
   end
   bc_xminusms = broadcast(-, x, ms)
 
-  expxx = exp(bc_xminusms)
+  expxx = exp.(bc_xminusms)
   sumexpxx = sum(expxx, region)
 
-  log(sumexpxx) + ms
+  log.(sumexpxx) .+ ms
 end
 
 
@@ -55,12 +55,17 @@ end
     rDirichlet(α[, logscale])
 
   Single draw from Dirichlet distribution, option for log scale.
+
+  ### Example
+  ```julia
+  rDirichlet(ones(5),true)
+  ```
 """
-function rDirichlet(α::Array{Float64,1}, logscale::Bool=false)
-  assert( all(α .> 0.0) )
+function rDirichlet(α::Array{Float64, 1}, logscale::Bool=false)
+  @assert( all(α .> 0.0) )
 
   k = length(α)
-  xx = Vector{Float64}(k) # allows changes to elements
+  xx = Vector{Float64}(undef, k) # allows changes to elements
   s = 0.0
 
   if logscale
@@ -68,7 +73,7 @@ function rDirichlet(α::Array{Float64,1}, logscale::Bool=false)
       xx[i] = log(rand(Gamma(α[i], 1.0)))
     end
     s = logsumexp(xx)
-    out = xx - s
+    out = xx .- s
 
   else
     for i in 1:k
@@ -97,7 +102,7 @@ function embed(y::Union{Vector{Int}, Vector{Float64}}, nlags::Int)
     out = zeros(Float64, n, emdim)
     for i in 1:n
         tt = i + nlags
-        out[i,:] = copy(y[range(tt, -1, emdim)])
+        out[i,:] = copy(y[range(tt, step=-1, length=emdim)])
     end
     out
 end
@@ -134,12 +139,15 @@ function condNorm(μx::Union{Float64, Vector{Float64}},
   isposdef(Σyy) || throw(ArgumentError("Σyy must be positive definite."))
 
   # Cholesky method (about 2 times faster than direct method)
-  U = chol(Σxx)
+  U = (cholesky(Σxx)).U
+  Ut = transpose(U)
 
   # C = U' \ Σxy
-  C = At_ldiv_B(U, Σxy)
+  # C = At_ldiv_B(U, Σxy)
+  C = Ut \ Σxy
   # D = U' \ (x - μx)
-  D = At_ldiv_B(U, (x - μx))
+  # D = At_ldiv_B(U, (x - μx))
+  D = Ut \ (x - μx)
 
   μ = μy + C'D
   Σ = Σyy - C'C
@@ -167,6 +175,10 @@ end
 
 """
     ldnorm(x, μ, σ2)
+### Example
+```julia
+ldnorm(0.5, 0.0, 1.0)
+```
 """
 function ldnorm(x::Float64, μ::Float64, σ2::Float64)
   -0.5*log(2*π*σ2) - 0.5 * (x - μ)^2 / σ2
