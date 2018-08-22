@@ -176,7 +176,7 @@ end
 """
     lmvbeta(x)
 
-Computes the natural log of ``prod(\Gamma(x)) / \Gamma(sum(x))``.
+Computes the natural log of ``∏(Γ(x)) / Γ(sum(x))``.
 
 ### Example
 ```julia

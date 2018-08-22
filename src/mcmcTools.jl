@@ -12,8 +12,8 @@ function adapt_cΣ(accpt_rate::Float64, cΣ::Matrix{Float64}, tries::UInt64,
   pass = true
   cΣ_out = cΣ
 
-  const too_low = accpt_rate < accpt_bnds[1]
-  const too_high = accpt_rate > accpt_bnds[2]
+  too_low = accpt_rate < accpt_bnds[1]
+  too_high = accpt_rate > accpt_bnds[2]
 
   if too_low
     pass = false

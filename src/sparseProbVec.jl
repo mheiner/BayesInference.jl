@@ -160,28 +160,28 @@ end
 function rpost_sparseStickBreak(x::Vector{Int}, p1::Float64, α::Float64,
   μ::Float64, M::Float64, logout::Bool=false)
 
-  const K = length(x)
-  const n = K - 1
-  const rcrx = cumsum( x[range(K, -1, n)] )[range(n, -1, n)]  # ∑_{k+1}^K x_k
-  const γ = M * μ
-  const δ = M * (1.0 - μ)
+  K = length(x)
+  n = K - 1
+  rcrx = cumsum( x[range(K, -1, n)] )[range(n, -1, n)]  # ∑_{k+1}^K x_k
+  γ = M * μ
+  δ = M * (1.0 - μ)
 
   ## mixture component 1 update
-  const a1 = 1.0 .+ x[1:n]
-  const b1 = α .+ rcrx
+  a1 = 1.0 .+ x[1:n]
+  b1 = α .+ rcrx
 
   ## mixture component 2 update
-  const a2 = γ .+ x[1:n]
-  const b2 = δ .+ rcrx
+  a2 = γ .+ x[1:n]
+  b2 = δ .+ rcrx
 
   ## calculate posterior mixture weights
-  const lgwt1 = log(p1) .- lbeta.(1.0, α) .+ lbeta.(a1, b1)
-  const lgwt2 = log(1.0 - p1) .- lbeta.(γ, δ) .+ lbeta.(a2, b2)
-  const ldenom = [ logsumexp( [lgwt1[i], lgwt2[i]] ) for i in 1:n ]
+  lgwt1 = log(p1) .- lbeta.(1.0, α) .+ lbeta.(a1, b1)
+  lgwt2 = log(1.0 - p1) .- lbeta.(γ, δ) .+ lbeta.(a2, b2)
+  ldenom = [ logsumexp( [lgwt1[i], lgwt2[i]] ) for i in 1:n ]
 
-  const post_p1 = exp.( lgwt1 .- ldenom )
-  const is1 = rand(n) .< post_p1
-  const ξ = -1*(is1 .* 1 - 1) + 1
+  post_p1 = exp.( lgwt1 .- ldenom )
+  is1 = rand(n) .< post_p1
+  ξ = -1*(is1 .* 1 - 1) + 1
 
   lz = Vector{Float64}(n)
   for i in 1:n
@@ -259,24 +259,24 @@ end
 function logSBMmarginal(x::Vector{Int}, p1::Float64, α::Float64,
   μ::Float64, M::Float64)
 
-      const K = length(x)
-      const n = K - 1
-      const rcrx = cumsum( x[range(K, -1, n)] )[range(n, -1, n)]  # ∑_{k+1}^K x_k
-      const γ = M * μ
-      const δ = M * (1.0 - μ)
+      K = length(x)
+      n = K - 1
+      rcrx = cumsum( x[range(K, -1, n)] )[range(n, -1, n)]  # ∑_{k+1}^K x_k
+      γ = M * μ
+      δ = M * (1.0 - μ)
 
       ## mixture component 1 update
-      const a1 = 1.0 .+ x[1:n]
-      const b1 = α .+ rcrx
+      a1 = 1.0 .+ x[1:n]
+      b1 = α .+ rcrx
 
       ## mixture component 2 update
-      const a2 = γ .+ x[1:n]
-      const b2 = δ .+ rcrx
+      a2 = γ .+ x[1:n]
+      b2 = δ .+ rcrx
 
       ## calculate posterior mixture weights
-      const lgwt1 = log(p1) .- lbeta.(1.0, α) .+ lbeta.(a1, b1)
-      const lgwt2 = log(1.0 - p1) .- lbeta.(γ, δ) .+ lbeta.(a2, b2)
-      const lsum = [ logsumexp( [lgwt1[i], lgwt2[i]] ) for i in 1:n ]
+      lgwt1 = log(p1) .- lbeta.(1.0, α) .+ lbeta.(a1, b1)
+      lgwt2 = log(1.0 - p1) .- lbeta.(γ, δ) .+ lbeta.(a2, b2)
+      lsum = [ logsumexp( [lgwt1[i], lgwt2[i]] ) for i in 1:n ]
 
       sum( lsum )
 end

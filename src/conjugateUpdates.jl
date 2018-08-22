@@ -21,11 +21,11 @@ function post_norm_mean(ȳ::Float64, n::Int, σ2::Float64, μ0::Float64, v0::Fl
   v0 > 0.0 || throw(ArgumentError("v0 must be positive."))
   n > 0.0 || throw(ArgumentError("n must be positive."))
 
-  # const n = convert(Float64, n)
+  # n = convert(Float64, n)
 
-  const v1 = 1.0 / (1.0/v0 + n/σ2)
-  const sd1 = sqrt(v1)
-  const μ1 = v1 * (μ0/v0 + n*ȳ/σ2)
+  v1 = 1.0 / (1.0/v0 + n/σ2)
+  sd1 = sqrt(v1)
+  μ1 = v1 * (μ0/v0 + n*ȳ/σ2)
 
   Normal(μ1, sd1)
 end
@@ -47,9 +47,9 @@ function post_norm_var(ss::Float64, n::Int64, a0::Float64, b0::Float64)
   a0 > 0.0 || throw(ArgumentError("a0 must be positive."))
   b0 > 0.0 || throw(ArgumentError("b0 must be positive."))
 
-  # const n = convert(Float64, n)
-  const a1 = a0 + 0.5*n
-  const b1 = b0 + 0.5*ss
+  # n = convert(Float64, n)
+  a1 = a0 + 0.5*n
+  b1 = b0 + 0.5*ss
 
   InverseGamma(a1, b1)
 end
@@ -73,9 +73,9 @@ function rpost_normlm_beta1(y::Vector{Float64},
   σ2 > 0.0 || throw(ArgumentError("σ2 must be positive."))
   τ2 > 0.0 || throw(ArgumentError("τ2 must be positive."))
 
-  const n,p = size(X) # assumes X was a matrix
+  n,p = size(X) # assumes X was a matrix
   length(y) == n || throw(ArgumentError("y and X dimension mismatch"))
-  const ystar = y - β0
+  ystar = y - β0
 
   A = eye(p) / τ2 + X'X / σ2
   U = chol(A)
@@ -93,8 +93,8 @@ function rpost_normlm_beta1(y::Float64, X::Vector{Float64},
   σ2 > 0.0 || throw(ArgumentError("σ2 must be positive."))
   τ2 > 0.0 || throw(ArgumentError("τ2 must be positive."))
 
-  const p = length(X)
-  const ystar = y - β0
+  p = length(X)
+  ystar = y - β0
 
   A = eye(p) / τ2 + A_mul_Bt(X, X) / σ2
   U = chol(A)
@@ -114,7 +114,7 @@ function rpost_normlm_beta1(y::Vector{Float64},
   τ2 > 0.0 || throw(ArgumentError("τ2 must be positive."))
   length(y) == length(X) || throw(ArgumentError("y and X dimension mismatch"))
 
-  const ystar = y - β0
+  ystar = y - β0
 
   A = 1.0 / τ2 + dot(X,X) / σ2
   μ = (X'ystar/σ2) / A
@@ -129,7 +129,7 @@ function rpost_normlm_beta1(y::Float64, X::Float64,
   σ2 > 0.0 || throw(ArgumentError("σ2 must be positive."))
   τ2 > 0.0 || throw(ArgumentError("τ2 must be positive."))
 
-  const ystar = y - β0
+  ystar = y - β0
 
   A = 1.0 / τ2 + dot(X,X) / σ2
   μ = (X'ystar/σ2) / A
