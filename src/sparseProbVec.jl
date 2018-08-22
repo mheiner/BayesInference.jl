@@ -5,19 +5,19 @@ export SparseDirMixPrior, SparseSBPrior, SparseSBPriorP, SparseSBPriorFull,
   rpost_sparseStickBreak, slice_mu, logSBMmarginal;
 
 
-immutable SparseDirMixPrior
+struct SparseDirMixPrior
   α::Union{Float64, Vector{Float64}}
   β::Float64
 end
 
-immutable SparseSBPrior
+struct SparseSBPrior
   α::Float64
   p1::Float64
   μ::Float64
   M::Float64
 end
 
-type SparseSBPriorP
+mutable struct SparseSBPriorP
   α::Float64
   μ::Float64
   M::Float64
@@ -26,7 +26,7 @@ type SparseSBPriorP
   p1_now::Float64
 end
 
-type SparseSBPriorFull
+mutable struct SparseSBPriorFull
   α::Float64
   M::Float64
   a_p1::Float64
@@ -50,7 +50,7 @@ function logSDMweights(α::Vector{Float64}, β::Float64)
   assert(β > 1.0)
   K = length(α)
   X = reshape(repeat(α, inner=K), (K,K)) + β .* eye(K)
-  lgX = lgamma(X)
+  lgX = lgamma.(X)
   lpg = reshape(sum(lgX, 2), K)
   lpg_denom = logsumexp(lpg)
 
