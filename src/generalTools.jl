@@ -59,8 +59,8 @@ end
 function rDirichlet(α::Array{Float64,1}, logscale::Bool=false)
   assert( all(α .> 0.0) )
 
-  const k = length(α)
-  const xx = Vector{Float64}(k) # allows changes to elements
+  k = length(α)
+  xx = Vector{Float64}(k) # allows changes to elements
   s = 0.0
 
   if logscale
