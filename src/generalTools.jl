@@ -36,14 +36,14 @@ Computes `log(sum(exp(x)))` in a stable manner along dimensions specified.
 """
 function logsumexp(x::Array{Float64}, region, usemax::Bool=true)
   if usemax
-    ms = maximum(x, region)
+    ms = maximum(x, dims=region)
   else
-    ms = minimum(x, region)
+    ms = minimum(x, dims=region)
   end
   bc_xminusms = broadcast(-, x, ms)
 
   expxx = exp.(bc_xminusms)
-  sumexpxx = sum(expxx, region)
+  sumexpxx = sum(expxx, dims=region)
 
   log.(sumexpxx) .+ ms
 end

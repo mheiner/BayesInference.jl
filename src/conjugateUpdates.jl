@@ -75,9 +75,9 @@ function rpost_normlm_beta1(y::Vector{Float64},
 
   n,p = size(X) # assumes X was a matrix
   length(y) == n || throw(ArgumentError("y and X dimension mismatch"))
-  ystar = y - β0
+  ystar = y .- β0
 
-  A = eye(p) / τ2 + X'X / σ2
+  A = Matrix(1.0I, p, p) / τ2 + X'X / σ2
   U = (cholesky(A)).U
   Ut = transpose(U)
 
@@ -96,9 +96,9 @@ function rpost_normlm_beta1(y::Float64, X::Vector{Float64},
   τ2 > 0.0 || throw(ArgumentError("τ2 must be positive."))
 
   p = length(X)
-  ystar = y - β0
+  ystar = y .- β0
 
-  A = eye(p) / τ2 + A_mul_Bt(X, X) / σ2
+  A = Matrix(1.0I, p, p) / τ2 + (X * transpose(X)) / σ2
   U = (cholesky(A)).U
   Ut = transpose(U)
 
@@ -118,13 +118,13 @@ function rpost_normlm_beta1(y::Vector{Float64},
   τ2 > 0.0 || throw(ArgumentError("τ2 must be positive."))
   length(y) == length(X) || throw(ArgumentError("y and X dimension mismatch"))
 
-  ystar = y - β0
+  ystar = y .- β0
 
   A = 1.0 / τ2 + dot(X,X) / σ2
   μ = (X'ystar/σ2) / A
 
   z = randn(1)
-  β = z / sqrt(A) + μ
+  β = z / sqrt(A) .+ μ
 end
 function rpost_normlm_beta1(y::Float64, X::Float64,
   σ2::Float64, τ2::Float64, β0::Float64=0.0)
@@ -133,11 +133,11 @@ function rpost_normlm_beta1(y::Float64, X::Float64,
   σ2 > 0.0 || throw(ArgumentError("σ2 must be positive."))
   τ2 > 0.0 || throw(ArgumentError("τ2 must be positive."))
 
-  ystar = y - β0
+  ystar = y .- β0
 
   A = 1.0 / τ2 + dot(X,X) / σ2
   μ = (X'ystar/σ2) / A
 
   z = randn(1)
-  β = z / sqrt(A) + μ
+  β = z / sqrt(A) .+ μ
 end
