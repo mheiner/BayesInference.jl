@@ -6,8 +6,8 @@ export adapt_cΣ;
 """
     adapt_cΣ(accpt_rate, cΣ, tries, accpt_bnds=[0.23, 0.40], adjust=[0.5, 2.0]
 """
-function adapt_cΣ(accpt_rate::Float64, cΣ::Matrix{Float64}, tries::UInt64,
-  accpt_bnds::Vector{Float64}=[0.23, 0.40], adjust::Vector{Float64}=[0.5, 2.0])
+function adapt_cΣ(accpt_rate::Float, cΣ::Matrix{Float}, tries::Int,
+  accpt_bnds::Vector{Float}=[0.23, 0.40], adjust::Vector{Float}=[0.5, 2.0])
 
   pass = true
   cΣ_out = cΣ

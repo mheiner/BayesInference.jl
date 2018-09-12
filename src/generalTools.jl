@@ -1,5 +1,6 @@
 
-export logsumexp, rDirichlet, embed, condNorm, ldnorm, lmvbeta;
+export logsumexp, rDirichlet, embed, condNorm,
+ldnorm, lmvbeta, vech, xpnd;
 
 """
     logsumexp(x[, usemax])
@@ -198,4 +199,83 @@ Computes the natural log of ``∏(Γ(x)) / Γ(sum(x))``.
 """
 function lmvbeta(x::Array{Float64})
     sum(lgamma.(x)) - lgamma(sum(x))
+end
+
+
+"""
+    vech(A)
+
+Extracts the lower triangular elements of a matrix as a vector.
+
+Adapted from https://discourse.julialang.org/t/half-vectorization/7399/4
+
+### Example
+```julia
+    A = reshape(collect(1:16), 4,4)
+    v = vech(A)
+    xpnd_tri(v)
+
+    v = vech(A, false)
+    xpnd_tri(v)
+
+    vech(A', false)
+```
+"""
+function vech(A::AbstractArray{T, 2},
+    diag::Bool=true) where {T}
+    m = LinearAlgebra.checksquare(A)
+    k = 0
+    if diag
+        v = Vector{T}(undef, (m*(m+1))>>1)
+        for j = 1:m, i = j:m
+            @inbounds v[k += 1] = A[i,j]
+        end
+    else
+        v = Vector{T}(undef, (m*(m-1))>>1)
+        for j = 1:(m-1), i = (j+1):m
+            @inbounds v[k += 1] = A[i,j]
+        end
+    end
+    return v
+end
+
+"""
+    xpnd(v)
+
+Creates a lower triangular matrix from the elements of a vector.
+
+Adapted from https://groups.google.com/forum/#!topic/julia-users/UARlZBCNlng
+and xpnd function from R package MCMCpack.
+
+### Example
+```julia
+  A = reshape(collect(1:16), 4,4)
+  v = vech(A)
+  xpnd_tri(v)
+
+  v = vech(A, false)
+  xpnd_tri(v, false)
+```
+"""
+function xpnd_tri(v::Vector{T}, diag::Bool=true) where {T}
+    k = 0
+    n = length(v)
+    if diag
+        m = Int((sqrt(1 + 8*n) - 1) / 2)
+        A0 = Array{T, 2}(undef, m, m)
+        for j = 1:m, i = j:m
+            k += 1
+            @inbounds A0[i,j] = v[k]
+        end
+        A = LowerTriangular(A0)
+    else
+        m = Int((sqrt(1 + 8*n) + 1) / 2)
+        A0 = Array{T, 2}(undef, m, m)
+        for j = 1:(m-1), i = (j+1):m
+            k += 1
+            @inbounds A0[i,j] = v[k]
+        end
+        A = UnitLowerTriangular(A0)
+    end
+    return A
 end
