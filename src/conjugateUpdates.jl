@@ -16,7 +16,7 @@ export post_norm_mean, post_norm_var, rpost_normlm_beta1;
 
   Accepts the sample mean and returns a normal distribution.
 """
-function post_norm_mean(ȳ::Float, n::Int, σ2::Float, μ0::Float, v0::Float)
+function post_norm_mean(ȳ::<:Real, n::Int, σ2::<:Real, μ0::<:Real, v0::<:Real)
   σ2 > 0.0 || throw(ArgumentError("σ must be positive."))
   v0 > 0.0 || throw(ArgumentError("v0 must be positive."))
   n > 0.0 || throw(ArgumentError("n must be positive."))
@@ -43,7 +43,7 @@ end
   `a0` is the shape parameter of the inverse-gamma prior.
   `b0` is the scale parameter of the inverse-gamma prior.
 """
-function post_norm_var(ss::Float, n::Float, a0::Float, b0::Float)
+function post_norm_var(ss::<:Real, n::<:Real, a0::<:Real, b0::<:Real)
   a0 > 0.0 || throw(ArgumentError("a0 must be positive."))
   b0 > 0.0 || throw(ArgumentError("b0 must be positive."))
 
@@ -65,9 +65,9 @@ end
 
   Assumes independent normals prior with mean `0.0` and variance `τ2`.
 """
-function rpost_normlm_beta1(y::Vector{Float},
-  X::Matrix{Float},
-  σ2::Float, τ2::Float, β0::Float=0.0)
+function rpost_normlm_beta1(y::Vector{<:Real},
+  X::Matrix{<:Real},
+  σ2::<:Real, τ2::<:Real, β0::<:Real=0.0)
   # n > 1 and p > 1 case
 
   σ2 > 0.0 || throw(ArgumentError("σ2 must be positive."))
@@ -88,8 +88,8 @@ function rpost_normlm_beta1(y::Vector{Float},
   z = randn(p)
   β = U \ z + μ
 end
-function rpost_normlm_beta1(y::Float, X::Vector{Float},
-  σ2::Float, τ2::Float, β0::Float=0.0)
+function rpost_normlm_beta1(y::<:Real, X::Vector{<:Real},
+  σ2::<:Real, τ2::<:Real, β0::<:Real=0.0)
   # n = 1 and p > 1 case
 
   σ2 > 0.0 || throw(ArgumentError("σ2 must be positive."))
@@ -109,9 +109,9 @@ function rpost_normlm_beta1(y::Float, X::Vector{Float},
   z = randn(p)
   β = U \ z + μ
 end
-function rpost_normlm_beta1(y::Vector{Float},
-  X::Vector{Float},
-  σ2::Float, τ2::Float, β0::Float=0.0)
+function rpost_normlm_beta1(y::Vector{<:Real},
+  X::Vector{<:Real},
+  σ2::<:Real, τ2::<:Real, β0::<:Real=0.0)
   # n > 1 and p = 1 case
 
   σ2 > 0.0 || throw(ArgumentError("σ2 must be positive."))
@@ -126,8 +126,8 @@ function rpost_normlm_beta1(y::Vector{Float},
   z = randn(1)
   β = z / sqrt(A) .+ μ
 end
-function rpost_normlm_beta1(y::Float, X::Float,
-  σ2::Float, τ2::Float, β0::Float=0.0)
+function rpost_normlm_beta1(y::<:Real, X::<:Real,
+  σ2::<:Real, τ2::<:Real, β0::<:Real=0.0)
   # n = 1 and p = 1 case
 
   σ2 > 0.0 || throw(ArgumentError("σ2 must be positive."))
