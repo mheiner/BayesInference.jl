@@ -1,6 +1,6 @@
 
 export logsumexp, rDirichlet, embed, condNorm,
-ldnorm, lmvbeta, vech, xpnd;
+ldnorm, lmvbeta, vech, xpnd_tri;
 
 """
     logsumexp(x[, usemax])
