@@ -14,7 +14,7 @@ Computes `log(sum(exp(x)))` in a stable manner.
   log(sum(exp.(x)))
 ```
 """
-function logsumexp(x::Array{Float64}, usemax::Bool=true)
+function logsumexp(x::Array{Real}, usemax::Bool=true)
   if usemax
     m = maximum(x)
   else
@@ -35,7 +35,7 @@ Computes `log(sum(exp(x)))` in a stable manner along dimensions specified.
   logsumexp(x, 2)
 ```
 """
-function logsumexp(x::Array{Float64}, region, usemax::Bool=true)
+function logsumexp(x::Array{Real}, region, usemax::Bool=true)
   if usemax
     ms = maximum(x, dims=region)
   else
@@ -62,11 +62,11 @@ end
   rDirichlet(ones(5),true)
   ```
 """
-function rDirichlet(α::Array{Float64, 1}, logscale::Bool=false)
+function rDirichlet(α::Array{Real, 1}, logscale::Bool=false)
   @assert( all(α .> 0.0) )
 
   k = length(α)
-  xx = Vector{Float64}(undef, k) # allows changes to elements
+  xx = Vector{Real}(undef, k) # allows changes to elements
   s = 0.0
 
   if logscale
@@ -89,18 +89,18 @@ out
 end
 
 """
-    embed(y::Union{Vector{Int}, Vector{Float64}}, nlags::Int)
+    embed(y::Union{Vector{Int}, Vector{Real}}, nlags::Int)
 
 ### Example
 ```julia
 embed(collect(1:5), 2)
 ```
 """
-function embed(y::Union{Vector{Int}, Vector{Float64}}, nlags::Int)
+function embed(y::Union{Vector{Int}, Vector{Real}}, nlags::Int)
     TT = length(y)
     n = TT - nlags
     emdim = nlags + 1
-    out = zeros(Float64, n, emdim)
+    out = zeros(Real, n, emdim)
     for i in 1:n
         tt = i + nlags
         out[i,:] = copy(y[range(tt, step=-1, length=emdim)])
@@ -130,11 +130,11 @@ Returns the conditional distribution of a the ``y`` subvector
   @time condNorm(μx, μy, Σxx, Σxy, Σyy, x)
 ```
 """
-function condNorm(μx::Union{Float64, Vector{Float64}},
-  μy::Union{Float64, Vector{Float64}},
-  Σxx::Union{Float64, Array{Float64, 2}},
-  Σxy::Union{Float64, Vector{Float64}, Array{Float64, 2}},
-  Σyy::Union{Float64, Array{Float64, 2}}, x::Union{Float64, Vector{Float64}})
+function condNorm(μx::Union{Real, Vector{Real}},
+  μy::Union{Real, Vector{Real}},
+  Σxx::Union{Real, Array{Real, 2}},
+  Σxy::Union{Real, Vector{Real}, Array{Real, 2}},
+  Σyy::Union{Real, Array{Real, 2}}, x::Union{Real, Vector{Real}})
 
   isposdef(Σxx) || throw(ArgumentError("Σxx must be positive definite."))
   isposdef(Σyy) || throw(ArgumentError("Σyy must be positive definite."))
@@ -181,7 +181,7 @@ end
 ldnorm(0.5, 0.0, 1.0)
 ```
 """
-function ldnorm(x::Float64, μ::Float64, σ2::Float64)
+function ldnorm(x::Real, μ::Real, σ2::Real)
   -0.5*log(2*π*σ2) - 0.5 * (x - μ)^2 / σ2
 end
 
@@ -197,7 +197,7 @@ Computes the natural log of ``∏(Γ(x)) / Γ(sum(x))``.
   lmvbeta(x)
 ```
 """
-function lmvbeta(x::Array{Float64})
+function lmvbeta(x::Array{Real})
     sum(lgamma.(x)) - lgamma(sum(x))
 end
 
