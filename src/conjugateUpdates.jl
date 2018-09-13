@@ -65,8 +65,8 @@ end
 
   Assumes independent normals prior with mean `0.0` and variance `τ2`.
 """
-function rpost_normlm_beta1(y::Vector{::Real},
-  X::Matrix{::Real},
+function rpost_normlm_beta1(y::Vector{Real},
+  X::Matrix{Real},
   σ2::Real, τ2::Real, β0::Real=0.0)
   # n > 1 and p > 1 case
 
@@ -88,7 +88,7 @@ function rpost_normlm_beta1(y::Vector{::Real},
   z = randn(p)
   β = U \ z + μ
 end
-function rpost_normlm_beta1(y::Real, X::Vector{::Real},
+function rpost_normlm_beta1(y::Real, X::Vector{Real},
   σ2::Real, τ2::Real, β0::Real=0.0)
   # n = 1 and p > 1 case
 
@@ -109,8 +109,8 @@ function rpost_normlm_beta1(y::Real, X::Vector{::Real},
   z = randn(p)
   β = U \ z + μ
 end
-function rpost_normlm_beta1(y::Vector{::Real},
-  X::Vector{::Real},
+function rpost_normlm_beta1(y::Vector{Real},
+  X::Vector{Real},
   σ2::Real, τ2::Real, β0::Real=0.0)
   # n > 1 and p = 1 case
 
