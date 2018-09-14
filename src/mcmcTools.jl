@@ -6,8 +6,8 @@ export adapt_cΣ;
 """
     adapt_cΣ(accpt_rate, cΣ, tries, accpt_bnds=[0.23, 0.40], adjust=[0.5, 2.0]
 """
-function adapt_cΣ(accpt_rate::Real, cΣ::Matrix{Real}, tries::Int,
-  accpt_bnds::Vector{Real}=[0.23, 0.40], adjust::Vector{Real}=[0.5, 2.0])
+function adapt_cΣ(accpt_rate::T, cΣ::Matrix{T}, tries::Int,
+  accpt_bnds::Vector{T}=[0.23, 0.40], adjust::Vector{T}=[0.5, 2.0]) where T <: Real
 
   pass = true
   cΣ_out = cΣ
