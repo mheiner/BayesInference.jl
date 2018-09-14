@@ -5,7 +5,7 @@ The function naming convention for this file is:
 post_likelihood_unknownParams
 =#
 
-export post_norm_mean, post_norm_var, rpost_normlm_beta1;
+export post_norm_mean, post_norm_var, rpost_normlm_beta1, post_alphaDP;
 
 
 """
@@ -140,4 +140,24 @@ function rpost_normlm_beta1(y::T, X::T,
 
   z = randn(1)
   β = z / sqrt(A) .+ μ
+end
+
+
+
+"""
+    post_alphaDP(H::Int, lω_last::T, a_α::T, b_α::T)
+
+    Returns posterior full conditional gamma distribution
+    for the Dirichlet Process mass parameter `α`
+    when using the truncated stick breaking representation.
+
+    `H` is the the DP truncation level.
+    `lω_last` is the Hth and last log weight.
+    `a_α` is the shape of the gamma prior.
+    `b_α` is the rate of the gamma prior.
+"""
+function post_alphaDP(H::Int, lω_last::T, a_α::T, b_α::T) where T <: Real
+    a1 = a_α + H - 1.0
+    b1 = b_α - lω_last # rate parameter
+    Gamma(a1, 1.0/b1)
 end
