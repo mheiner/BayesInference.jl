@@ -5,7 +5,8 @@ The function naming convention for this file is:
 post_likelihood_unknownParams
 =#
 
-export post_norm_mean, post_norm_var, rpost_normlm_beta1, post_alphaDP;
+export post_norm_mean, post_norm_var, rpost_normlm_beta1, post_alphaDP,
+       rpost_MvN_knownPrec, rpost_MvNprec_knownMean;
 
 
 """
@@ -160,4 +161,39 @@ function post_alphaDP(H::Int, lω_last::T, a_α::T, b_α::T) where T <: Real
     a1 = a_α + H - 1.0
     b1 = b_α - lω_last # rate parameter
     Gamma(a1, 1.0/b1)
+end
+
+
+function rpost_MvN_knownPrec(Y::Array{T,2}, Λ::PDMat{T},
+                             μ0::Array{T,1}, Λ0::PDMat{T}) where T <: Real
+    n = float(T)(size(Y,1))
+    ybar = vec(mean(Y, dims=1))
+    return rpost_MvN_knownPrec(n, ybar, Λ, μ0, Λ0)
+end
+function rpost_MvN_knownPrec(n::T, ybar::Array{T,1}, Λ::PDMat{T},
+                             μ0::Array{T,1}, Λ0::PDMat{T}) where T <: Real
+    d = length(ybar)
+    Λ1 = PDMat(Λ0 + (n .* Λ))
+    a = Λ0*μ0 + (n .* Λ * ybar)
+    μ1 = Λ1 \ a
+    return μ1 + Λ.chol.U \ randn(d)
+end
+
+
+function rpost_MvNprec_knownMean(Y::Array{T,2}, μ::Array{T,1},
+                                 df::T, invSc::PDMat{T}) where T <: Real
+    n = size(Y,1)
+    K = length(μ)
+    SS = zeros(T, K, K)
+    for i = 1:n
+        dev = Y[i,:] - μ
+        SS +=  dev * dev'
+    end
+    return rpost_MvNprec_knownMean(float(T)(n), PDMat(SS), df, invSc)
+end
+function rpost_MvNprec_knownMean(n::T, SS::PDMat{T}, df::T, invSc::PDMat{T}) where T <: Real
+    df1 = df + n
+    invSc1 = PDMat(invSc + SS)
+    Sc1 = inv(invSc1) # is there some way around this?
+    return rand(Distributions.Wishart(df1, Sc1))
 end

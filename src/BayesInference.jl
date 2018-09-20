@@ -1,9 +1,11 @@
 module BayesInference
 
-using Distributions
-using StatsBase
 using LinearAlgebra
 using SpecialFunctions
+
+using Distributions
+using StatsBase
+using PDMats
 
 include("generalTools.jl")
 include("conjugateUpdates.jl")
