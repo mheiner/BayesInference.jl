@@ -173,7 +173,7 @@ end
 function rpost_MvN_knownPrec(n::T, ybar::Array{T,1}, Λ::PDMat{T},
                              μ0::Array{T,1}, Λ0::PDMat{T}) where T <: Real
     d = length(ybar)
-    Λ1 = PDMat(Λ0 + (n .* Λ))
+    Λ1 = Λ0 + (n .* Λ) # result is of type PDMat
     a = Λ0*μ0 + (n .* Λ * ybar)
     μ1 = Λ1 \ a
     return μ1 + Λ.chol.U \ randn(d)
@@ -193,7 +193,7 @@ function rpost_MvNprec_knownMean(Y::Array{T,2}, μ::Array{T,1},
 end
 function rpost_MvNprec_knownMean(n::T, SS::PDMat{T}, df::T, invSc::PDMat{T}) where T <: Real
     df1 = df + n
-    invSc1 = PDMat(invSc + SS)
+    invSc1 = invSc + SS # result is of type PDMat
     Sc1 = inv(invSc1) # is there some way around this?
     return rand(Distributions.Wishart(df1, Sc1))
 end
