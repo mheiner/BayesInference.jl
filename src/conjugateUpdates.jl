@@ -189,11 +189,11 @@ function rpost_MvNprec_knownMean(Y::Array{T,2}, μ::Array{T,1},
         dev = Y[i,:] - μ
         SS +=  dev * dev'
     end
-    return rpost_MvNprec_knownMean(float(T)(n), PDMat(SS), df, invSc)
+    return rpost_MvNprec_knownMean(float(T)(n), SS, df, invSc)
 end
-function rpost_MvNprec_knownMean(n::T, SS::PDMat{T}, df::T, invSc::PDMat{T}) where T <: Real
+function rpost_MvNprec_knownMean(n::T, SS::Array{T,2}, df::T, invSc::PDMat{T}) where T <: Real
     df1 = df + n
-    invSc1 = invSc + SS # result is of type PDMat
+    invSc1 = PDMat(invSc + SS) # result is of type PDMat
     Sc1 = inv(invSc1) # is there some way around this?
     return rand(Distributions.Wishart(df1, Sc1))
 end
