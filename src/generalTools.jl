@@ -100,7 +100,7 @@ function embed(y::Union{Vector{Int}, Vector{Float64}}, nlags::Int)
     TT = length(y)
     n = TT - nlags
     emdim = nlags + 1
-    out = Array{Float64, 2}(undef, n, embedim)
+    out = Array{Float64, 2}(undef, n, emdim)
     for i in 1:n
         tt = i + nlags
         out[i,:] = copy(y[range(tt, step=-1, length=emdim)])
