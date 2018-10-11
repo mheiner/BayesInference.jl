@@ -1,5 +1,8 @@
 julia 0.7
+
+LinearAlgebra
+SpecialFunctions
+
 Distributions
 PDMats
 StatsBase
-SpecialFunctions
