@@ -173,8 +173,8 @@ end
 function rpost_MvN_knownPrec(n::T, ybar::Array{T,1}, Λ::PDMat{T},
                              μ0::Array{T,1}, Λ0::PDMat{T}) where T <: Real
     d = length(ybar)
-    Λ1 = Λ0 + (n .* Λ) # result is of type PDMat
-    a = Λ0*μ0 + (n .* Λ * ybar)
+    Λ1 = Λ0 + (n * Λ) # result is of type PDMat
+    a = Λ0*μ0 + (n * Λ * ybar)
     μ1 = Λ1 \ a
     return μ1 + Λ.chol.U \ randn(d)
 end
@@ -187,7 +187,7 @@ function rpost_MvNprec_knownMean(Y::Array{T,2}, μ::Array{T,1},
     SS = zeros(T, K, K)
     for i = 1:n
         dev = Y[i,:] - μ
-        SS +=  dev * dev'
+        SS +=  dev * dev' # not necessarily pos. def.
     end
     return rpost_MvNprec_knownMean(float(T)(n), SS, df, invSc)
 end
