@@ -4,8 +4,8 @@ using LinearAlgebra
 using SpecialFunctions
 
 using Distributions
-using StatsBase
 using PDMats
+using StatsBase
 
 include("generalTools.jl")
 include("conjugateUpdates.jl")
