@@ -25,3 +25,14 @@ function adapt_cΣ(accpt_rate::T, cΣ::Matrix{T}, tries::Int,
 
   return (pass, tries+1, cΣ_out)
 end
+
+## from Arthur Lui
+function deepcopyFields(state::T, fields::Vector{Symbol}) where T
+  substate = Dict{Symbol, Any}()
+
+  for field in fields
+    substate[field] = deepcopy(getfield(state, field))
+  end
+
+  return substate
+end
