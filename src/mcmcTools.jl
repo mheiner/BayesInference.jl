@@ -1,6 +1,6 @@
 # mcmcTools.jl
 
-export adapt_cΣ;
+export adapt_cΣ, deepcopyFields;
 
 
 """
