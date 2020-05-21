@@ -145,9 +145,9 @@ function rpost_normlm_beta1(y::T, X::T,
 end
 
 
-function rpost_normlmGenCov_beta1(y::Vector{T}, X::Array{T,2}, Σ::PDMat,
+function rpost_normlmGenCov_beta1(y::Vector{T}, X::Array{T,2}, Σ::TT,
                                   mβ::Vector{T}, # prior mean vector
-                                  Vβdiag::Vector{T}) where T <: Real
+                                  Vβdiag::Vector{T}) where {T <: Real, TT <: PDMat}
 
     all(Vβdiag .> 0.0) || thow("All varaince components must be positive.")
 
@@ -157,8 +157,8 @@ function rpost_normlmGenCov_beta1(y::Vector{T}, X::Array{T,2}, Σ::PDMat,
 
     return rand( MvNormalCanon( pot, Prec) )
 end
-function rpost_normlmGenCov_beta1(y::Vector{T}, X::Array{T,2}, Σ::PDMat,
-                                  Vβdiag::Vector{T}) where T <: Real
+function rpost_normlmGenCov_beta1(y::Vector{T}, X::Array{T,2}, Σ::TT,
+                                  Vβdiag::Vector{T}) where {T <: Real, TT <: PDMat}
 
     ## assumes zero vector for prior mean
     all(Vβdiag .> 0.0) || thow("All varaince components must be positive.")
@@ -190,14 +190,14 @@ function post_alphaDP(H::Int, lω_last::T, a_α::T, b_α::T) where T <: Real
 end
 
 
-function rpost_MvN_knownPrec(Y::Array{T,2}, Λ::PDMat{T},
-                             μ0::Array{T,1}, Λ0::PDMat{T}) where T <: Real
+function rpost_MvN_knownPrec(Y::Array{T,2}, Λ::TT,
+                             μ0::Array{T,1}, Λ0::TT) where {T <: Real, TT <: PDMat}
     n = float(T)(size(Y,1))
     ybar = vec(mean(Y, dims=1))
     return rpost_MvN_knownPrec(n, ybar, Λ, μ0, Λ0)
 end
-function rpost_MvN_knownPrec(n::T, ybar::Array{T,1}, Λ::PDMat{T},
-                             μ0::Array{T,1}, Λ0::PDMat{T}) where T <: Real
+function rpost_MvN_knownPrec(n::T, ybar::Array{T,1}, Λ::TT,
+                             μ0::Array{T,1}, Λ0::TT) where {T <: Real, TT <: PDMat}
     d = length(ybar)
     Λ1 = Λ0 + (n * Λ) # result is of type PDMat
     a = Λ0*μ0 + (n * Λ * ybar)
@@ -207,7 +207,7 @@ end
 
 
 function rpost_MvNprec_knownMean(Y::Array{T,2}, μ::Array{T,1},
-                                 df::T, invSc::PDMat{T}) where T <: Real
+                                 df::T, invSc::TT) where {T <: Real, TT <: PDMat}
     n = size(Y,1)
     K = length(μ)
     SS = zeros(T, K, K)
@@ -217,7 +217,7 @@ function rpost_MvNprec_knownMean(Y::Array{T,2}, μ::Array{T,1},
     end
     return rpost_MvNprec_knownMean(float(T)(n), SS, df, invSc)
 end
-function rpost_MvNprec_knownMean(n::T, SS::Array{T,2}, df::T, invSc::PDMat{T}) where T <: Real
+function rpost_MvNprec_knownMean(n::T, SS::Array{T,2}, df::T, invSc::TT) where {T <: Real, TT <: PDMat}
     df1 = df + n
     invSc1 = PDMat(invSc + SS) # result is of type PDMat
     Sc1 = inv(invSc1) # is there some way around this?
