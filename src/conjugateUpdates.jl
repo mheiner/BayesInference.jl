@@ -144,6 +144,31 @@ function rpost_normlm_beta1(y::T, X::T,
 end
 
 
+function rpost_normlmGenCov_beta1(y::Vector{T}, X::Array{T,2}, Σ::PDMat,
+                                  mβ::Vector{T}, # prior mean vector
+                                  Vβdiag::Vector{T}) where T <: Real
+
+    all(Vβdiag .> 0.0) || thow("All varaince components must be positive.")
+
+    Vβinv = Diagonal(1.0 ./ Vβdiag)
+    Prec = Vβinv + Xt_invA_X(Σ, X)
+    pot = Vβinv*mβ + whiten(Σ, X)'whiten(Σ, y)
+
+    return rand( MvNormalCanon( pot, Prec) )
+end
+function rpost_normlmGenCov_beta1(y::Vector{T}, X::Array{T,2}, Σ::PDMat,
+                                  Vβdiag::Vector{T}) where T <: Real
+
+    ## assumes zero vector for prior mean
+    all(Vβdiag .> 0.0) || thow("All varaince components must be positive.")
+
+    Vβinv = Diagonal(1.0 ./ Vβdiag)
+    Prec = Vβinv + Xt_invA_X(Σ, X)
+    pot =  whiten(Σ, X)'whiten(Σ, y)
+
+    return rand( MvNormalCanon( pot, Prec) )
+end
+
 
 """
     post_alphaDP(H::Int, lω_last::T, a_α::T, b_α::T)
