@@ -5,7 +5,8 @@ The function naming convention for this file is:
 post_likelihood_unknownParams
 =#
 
-export post_norm_mean, post_norm_var, rpost_normlm_beta1, post_alphaDP,
+export post_norm_mean, post_norm_var, rpost_normlm_beta1, rpost_normlmGenCov_beta1,
+       post_alphaDP,
        rpost_MvN_knownPrec, rpost_MvNprec_knownMean;
 
 
