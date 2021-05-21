@@ -53,3 +53,15 @@ function etr(timestart::DateTime, n_keep::Int, thin::Int, outfilename::String)
       estimated completion time $(estimatedfinish)")
     close(report_file)
 end
+function etr(timestart::DateTime, n_iter_timed::Int, n_keep::Int, thin::Int, outfilename::String)
+    timeendburn = now()
+    durperiter = (timeendburn - timestart).value / float(n_iter_timed) # in milliseconds
+    milsecremaining = durperiter * (n_keep * thin)
+    estimatedfinish = now() + Dates.Millisecond(Int64(round(milsecremaining)))
+    report_file = open(outfilename, "a+")
+    write(report_file, "Completed burn-in at $(durperiter/1.0e3*1000.0) seconds per 1000 iterations \n
+      $(durperiter/1.0e3/60.0*1000.0) minutes per 1000 iterations \n
+      $(durperiter/1.0e3/60.0/60.0*1000.0) hours per 1000 iterations \n
+      estimated completion time $(estimatedfinish)")
+    close(report_file)
+end
