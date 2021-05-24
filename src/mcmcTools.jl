@@ -53,7 +53,7 @@ function etr(timestart::DateTime, n_keep::Int, thin::Int, outfilename::String)
       estimated completion time $(estimatedfinish)")
     close(report_file)
 end
-function etr(timestart::DateTime, n_iter_timed::Int, n_keep::Int, thin::Int, outfilename::String)
+function etr(timestart::DateTime; n_iter_timed::Int, n_keep::Int, thin::Int, outfilename::String)
     timeendburn = now()
     durperiter = (timeendburn - timestart).value / float(n_iter_timed) # in milliseconds
     milsecremaining = durperiter * (n_keep * thin)
